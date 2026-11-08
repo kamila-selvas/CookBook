@@ -6,7 +6,9 @@ import com.example.cookbook.data.api.AuthInterceptor
 import com.example.cookbook.data.api.RecipeApiService
 import com.example.cookbook.data.local.SessionManager
 import com.example.cookbook.data.repository.NetworkAuthRepository
+import com.example.cookbook.data.repository.NetworkRecipeRepository
 import com.example.cookbook.domain.repository.AuthRepository
+import com.example.cookbook.domain.repository.RecipeRepository
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -22,6 +24,7 @@ interface AppContainer {
     val authApiService: AuthApiService
     val recipeApiService: RecipeApiService
     val authRepository: AuthRepository
+    val recipeRepository: RecipeRepository
 }
 
 /**
@@ -77,5 +80,9 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
 
     override val authRepository: AuthRepository by lazy {
         NetworkAuthRepository(authApiService, sessionManager)
+    }
+
+    override val recipeRepository: RecipeRepository by lazy {
+        NetworkRecipeRepository(recipeApiService)
     }
 }

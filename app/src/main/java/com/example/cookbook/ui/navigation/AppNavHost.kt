@@ -4,19 +4,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.cookbook.di.AppContainer
 import com.example.cookbook.ui.auth.LoginScreen
 import com.example.cookbook.ui.auth.LoginViewModel
 import com.example.cookbook.ui.auth.RegisterScreen
 import com.example.cookbook.ui.auth.RegisterViewModel
-import com.example.cookbook.ui.home.HomeScreen
+import com.example.cookbook.ui.recipes.RecipeDetailScreen
+import com.example.cookbook.ui.recipes.RecipeDetailViewModel
+import com.example.cookbook.ui.recipes.RecipeListScreen
+import com.example.cookbook.ui.recipes.RecipeListViewModel
 
 /**
- * Grafo principal de navegación Compose para la aplicación.
- * Evalúa si existe una sesión activa para determinar la pantalla inicial.
+ * Grafo principal de navegación Compose para la aplicación CookBook.
  */
 @Composable
 fun AppNavHost(
@@ -24,9 +28,8 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController()
 ) {
-    // Si ya existe token, inicia en Home; de lo contrario en Login
     val startDestination = if (container.authRepository.isLoggedIn()) {
-        Screen.Home.route
+        Screen.RecipeList.route
     } else {
         Screen.Login.route
     }
@@ -36,7 +39,7 @@ fun AppNavHost(
         startDestination = startDestination,
         modifier = modifier
     ) {
-        // Pantalla de Inicio de Sesión
+        // Inicio de Sesión
         composable(Screen.Login.route) {
             val loginViewModel: LoginViewModel = viewModel(factory = LoginViewModel.Factory)
             LoginScreen(
@@ -45,14 +48,14 @@ fun AppNavHost(
                     navController.navigate(Screen.Register.route)
                 },
                 onLoginSuccess = {
-                    navController.navigate(Screen.Home.route) {
+                    navController.navigate(Screen.RecipeList.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 }
             )
         }
 
-        // Pantalla de Registro
+        // Registro de Usuario
         composable(Screen.Register.route) {
             val registerViewModel: RegisterViewModel = viewModel(factory = RegisterViewModel.Factory)
             RegisterScreen(
@@ -66,14 +69,50 @@ fun AppNavHost(
             )
         }
 
-        // Pantalla de Inicio / Dashboard de recetas
-        composable(Screen.Home.route) {
-            HomeScreen(
-                authRepository = container.authRepository,
+        // Listado de Recetas
+        composable(Screen.RecipeList.route) {
+            val recipeListViewModel: RecipeListViewModel = viewModel(factory = RecipeListViewModel.Factory)
+            RecipeListScreen(
+                viewModel = recipeListViewModel,
+                onRecipeClick = { recipeId ->
+                    navController.navigate(Screen.RecipeDetail.createRoute(recipeId))
+                },
+                onCreateRecipeClick = {
+                    // Acción para crear receta (Etapa 5)
+                },
                 onLogout = {
                     navController.navigate(Screen.Login.route) {
                         popUpTo(0) { inclusive = true }
                     }
+                }
+            )
+        }
+
+        // Detalle de Receta
+        composable(
+            route = Screen.RecipeDetail.route,
+            arguments = listOf(
+                navArgument("recipeId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val recipeId = backStackEntry.arguments?.getInt("recipeId") ?: 0
+            val detailViewModel: RecipeDetailViewModel = viewModel(
+                factory = RecipeDetailViewModel.provideFactory(
+                    recipeId = recipeId,
+                    recipeRepository = container.recipeRepository
+                )
+            )
+
+            RecipeDetailScreen(
+                viewModel = detailViewModel,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onEditRecipe = { id ->
+                    // Acción para editar receta (Etapa 5)
+                },
+                onDeleteRecipe = { id ->
+                    // Acción para eliminar receta (Etapa 5)
                 }
             )
         }

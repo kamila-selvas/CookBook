@@ -6,5 +6,8 @@ package com.example.cookbook.ui.navigation
 sealed class Screen(val route: String) {
     data object Login : Screen("login")
     data object Register : Screen("register")
-    data object Home : Screen("home")
+    data object RecipeList : Screen("recipe_list")
+    data object RecipeDetail : Screen("recipe_detail/{recipeId}") {
+        fun createRoute(recipeId: Int): String = "recipe_detail/$recipeId"
+    }
 }
