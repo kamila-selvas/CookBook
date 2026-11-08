@@ -47,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +60,12 @@ fun RecipeListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val categories = listOf("Desayuno", "Almuerzo", "Cena", "Postre", "Bebida", "Snack")
+
+    // Recarga automáticamente el listado al volver de crear, editar o eliminar
+    LifecycleResumeEffect(Unit) {
+        viewModel.loadRecipes(isRefresh = true)
+        onPauseOrDispose { }
+    }
 
     Scaffold(
         topBar = {

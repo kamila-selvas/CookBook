@@ -14,7 +14,10 @@ import kotlinx.coroutines.launch
 data class RecipeDetailUiState(
     val isLoading: Boolean = true,
     val recipe: Recipe? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val isDeleting: Boolean = false,
+    val isDeleted: Boolean = false,
+    val deleteErrorMessage: String? = null
 )
 
 class RecipeDetailViewModel(
@@ -42,6 +45,26 @@ class RecipeDetailViewModel(
                         it.copy(
                             isLoading = false,
                             errorMessage = error.message ?: "No se pudo cargar la receta."
+                        )
+                    }
+                }
+            )
+        }
+    }
+
+    fun deleteRecipe() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isDeleting = true, deleteErrorMessage = null) }
+            val result = recipeRepository.deleteRecipe(recipeId)
+            result.fold(
+                onSuccess = {
+                    _uiState.update { it.copy(isDeleting = false, isDeleted = true) }
+                },
+                onFailure = { error ->
+                    _uiState.update {
+                        it.copy(
+                            isDeleting = false,
+                            deleteErrorMessage = error.message ?: "No se pudo eliminar la receta."
                         )
                     }
                 }

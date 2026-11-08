@@ -16,6 +16,8 @@ import com.example.cookbook.ui.auth.RegisterScreen
 import com.example.cookbook.ui.auth.RegisterViewModel
 import com.example.cookbook.ui.recipes.RecipeDetailScreen
 import com.example.cookbook.ui.recipes.RecipeDetailViewModel
+import com.example.cookbook.ui.recipes.RecipeFormScreen
+import com.example.cookbook.ui.recipes.RecipeFormViewModel
 import com.example.cookbook.ui.recipes.RecipeListScreen
 import com.example.cookbook.ui.recipes.RecipeListViewModel
 
@@ -78,7 +80,7 @@ fun AppNavHost(
                     navController.navigate(Screen.RecipeDetail.createRoute(recipeId))
                 },
                 onCreateRecipeClick = {
-                    // Acción para crear receta (Etapa 5)
+                    navController.navigate(Screen.RecipeCreate.route)
                 },
                 onLogout = {
                     navController.navigate(Screen.Login.route) {
@@ -97,6 +99,7 @@ fun AppNavHost(
         ) { backStackEntry ->
             val recipeId = backStackEntry.arguments?.getInt("recipeId") ?: 0
             val detailViewModel: RecipeDetailViewModel = viewModel(
+                key = "detail_$recipeId",
                 factory = RecipeDetailViewModel.provideFactory(
                     recipeId = recipeId,
                     recipeRepository = container.recipeRepository
@@ -109,10 +112,57 @@ fun AppNavHost(
                     navController.popBackStack()
                 },
                 onEditRecipe = { id ->
-                    // Acción para editar receta (Etapa 5)
+                    navController.navigate(Screen.RecipeEdit.createRoute(id))
                 },
-                onDeleteRecipe = { id ->
-                    // Acción para eliminar receta (Etapa 5)
+                onRecipeDeleted = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        // Crear Receta
+        composable(Screen.RecipeCreate.route) {
+            val formViewModel: RecipeFormViewModel = viewModel(
+                factory = RecipeFormViewModel.provideFactory(
+                    recipeId = null,
+                    recipeRepository = container.recipeRepository
+                )
+            )
+            RecipeFormScreen(
+                viewModel = formViewModel,
+                isEditMode = false,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onSaveSuccess = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        // Editar Receta
+        composable(
+            route = Screen.RecipeEdit.route,
+            arguments = listOf(
+                navArgument("recipeId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val recipeId = backStackEntry.arguments?.getInt("recipeId") ?: 0
+            val formViewModel: RecipeFormViewModel = viewModel(
+                key = "edit_$recipeId",
+                factory = RecipeFormViewModel.provideFactory(
+                    recipeId = recipeId,
+                    recipeRepository = container.recipeRepository
+                )
+            )
+            RecipeFormScreen(
+                viewModel = formViewModel,
+                isEditMode = true,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onSaveSuccess = {
+                    navController.popBackStack()
                 }
             )
         }
