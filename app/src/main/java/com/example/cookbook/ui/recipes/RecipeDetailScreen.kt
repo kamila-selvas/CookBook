@@ -52,6 +52,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 
@@ -65,6 +66,12 @@ fun RecipeDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showDeleteDialog by remember { mutableStateOf(false) }
+
+    // Recarga los datos automáticamente al volver de la pantalla de edición
+    LifecycleResumeEffect(Unit) {
+        viewModel.loadRecipe()
+        onPauseOrDispose { }
+    }
 
     LaunchedEffect(uiState.isDeleted) {
         if (uiState.isDeleted) {
