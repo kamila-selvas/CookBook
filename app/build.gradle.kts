@@ -49,16 +49,13 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
 
-    // Networking: Retrofit & OkHttp
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
 
-    // Security: EncryptedSharedPreferences for JWT Token
     implementation(libs.androidx.security.crypto)
 
-    // Image loading
     implementation(libs.coil.compose)
 
     testImplementation(libs.junit)

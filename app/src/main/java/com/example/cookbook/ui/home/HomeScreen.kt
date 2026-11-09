@@ -83,7 +83,6 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Icono central
             Box(
                 modifier = Modifier
                     .size(90.dp)
@@ -123,7 +122,6 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Tarjeta de estado de sesión
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -175,7 +173,6 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Botón Cerrar Sesión
             Button(
                 onClick = {
                     authRepository.logout()

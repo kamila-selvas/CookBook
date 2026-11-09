@@ -86,7 +86,6 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Icono e Identidad Culinaria
                 Box(
                     modifier = Modifier
                         .size(80.dp)
@@ -124,7 +123,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Tarjeta con Formulario
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),
@@ -148,7 +146,6 @@ fun LoginScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Campo Correo
                         OutlinedTextField(
                             value = uiState.correo,
                             onValueChange = viewModel::onCorreoChange,
@@ -171,7 +168,6 @@ fun LoginScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Campo Contraseña
                         OutlinedTextField(
                             value = uiState.password,
                             onValueChange = viewModel::onPasswordChange,
@@ -207,7 +203,6 @@ fun LoginScreen(
                             )
                         )
 
-                        // Mensaje de Error
                         if (uiState.errorMessage != null) {
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(
@@ -219,7 +214,6 @@ fun LoginScreen(
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // Botón Ingresar
                         Button(
                             onClick = {
                                 focusManager.clearFocus()
@@ -253,7 +247,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Enlace a Registro
                 TextButton(
                     onClick = onNavigateToRegister,
                     enabled = !uiState.isLoading

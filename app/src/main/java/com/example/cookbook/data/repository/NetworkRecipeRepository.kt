@@ -8,9 +8,6 @@ import com.example.cookbook.domain.repository.RecipeRepository
 import retrofit2.HttpException
 import java.io.IOException
 
-/**
- * Implementación de RecipeRepository conectada a la API REST protegida por JWT.
- */
 class NetworkRecipeRepository(
     private val recipeApiService: RecipeApiService
 ) : RecipeRepository {

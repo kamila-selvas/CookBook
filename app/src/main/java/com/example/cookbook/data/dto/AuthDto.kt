@@ -2,10 +2,6 @@ package com.example.cookbook.data.dto
 
 import com.google.gson.annotations.SerializedName
 
-/**
- * DTO para la petición de registro de usuario.
- * POST /api/auth/registro
- */
 data class RegisterRequestDto(
     @SerializedName("nombre")
     val nombre: String,
@@ -17,9 +13,6 @@ data class RegisterRequestDto(
     val password: String
 )
 
-/**
- * DTO para la respuesta del registro.
- */
 data class RegisterResponseDto(
     @SerializedName("id")
     val id: Int? = null,
@@ -37,10 +30,6 @@ data class RegisterResponseDto(
     val message: String? = null
 )
 
-/**
- * DTO para la petición de inicio de sesión.
- * POST /api/auth/login
- */
 data class LoginRequestDto(
     @SerializedName("correo")
     val correo: String,
@@ -49,9 +38,6 @@ data class LoginRequestDto(
     val password: String
 )
 
-/**
- * DTO para la respuesta exitosa del login con el JWT.
- */
 data class LoginResponseDto(
     @SerializedName("access_token")
     val accessToken: String,

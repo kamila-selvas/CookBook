@@ -1,5 +1,6 @@
 package com.example.cookbook.ui.auth
 
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -45,12 +46,11 @@ class LoginViewModel(
         val correo = state.correo.trim()
         val password = state.password
 
-        // Validación básica
         if (correo.isBlank()) {
             _uiState.update { it.copy(errorMessage = "Por favor ingresa tu correo electrónico.") }
             return
         }
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
+        if (!Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
             _uiState.update { it.copy(errorMessage = "El formato de correo no es válido.") }
             return
         }

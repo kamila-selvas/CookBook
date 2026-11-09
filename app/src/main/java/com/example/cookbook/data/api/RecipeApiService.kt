@@ -10,10 +10,6 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 
-/**
- * Endpoints protegidos para la gestión de recetas en la API REST.
- * Todas estas llamadas reciben el token Bearer mediante AuthInterceptor.
- */
 interface RecipeApiService {
 
     @GET("api/recetas/")

@@ -67,7 +67,6 @@ fun RecipeDetailScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    // Recarga los datos automáticamente al volver de la pantalla de edición
     LifecycleResumeEffect(Unit) {
         viewModel.loadRecipe()
         onPauseOrDispose { }
@@ -79,7 +78,6 @@ fun RecipeDetailScreen(
         }
     }
 
-    // Diálogo de confirmación para eliminar receta
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
@@ -221,7 +219,6 @@ fun RecipeDetailScreen(
                         .padding(innerPadding)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    // Imagen principal o Placeholder
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -254,7 +251,6 @@ fun RecipeDetailScreen(
                             }
                         }
 
-                        // Indicador de favorita
                         if (recipe.esFavorita) {
                             Box(
                                 modifier = Modifier
@@ -286,7 +282,6 @@ fun RecipeDetailScreen(
                         }
                     }
 
-                    // Mensaje de error al eliminar si existió
                     if (uiState.deleteErrorMessage != null) {
                         Text(
                             text = uiState.deleteErrorMessage ?: "",
@@ -296,13 +291,11 @@ fun RecipeDetailScreen(
                         )
                     }
 
-                    // Contenido detallado
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(20.dp)
                     ) {
-                        // Categoría
                         if (!recipe.categoria.isNullOrBlank()) {
                             Text(
                                 text = recipe.categoria.uppercase(),
@@ -315,7 +308,6 @@ fun RecipeDetailScreen(
                             Spacer(modifier = Modifier.height(4.dp))
                         }
 
-                        // Nombre de la receta
                         Text(
                             text = recipe.nombre,
                             style = MaterialTheme.typography.headlineSmall.copy(
@@ -324,7 +316,6 @@ fun RecipeDetailScreen(
                             )
                         )
 
-                        // Descripción
                         if (!recipe.descripcion.isNullOrBlank()) {
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
@@ -337,7 +328,6 @@ fun RecipeDetailScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Fila de Atributos (Tiempo y Porciones)
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -403,7 +393,6 @@ fun RecipeDetailScreen(
 
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        // Sección: Ingredientes
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
@@ -432,7 +421,6 @@ fun RecipeDetailScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Sección: Instrucciones
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
@@ -461,7 +449,6 @@ fun RecipeDetailScreen(
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // Botones de Acción (Editar y Eliminar)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)

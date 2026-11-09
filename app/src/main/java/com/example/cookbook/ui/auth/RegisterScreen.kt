@@ -88,7 +88,6 @@ fun RegisterScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Encabezado
                 Box(
                     modifier = Modifier
                         .size(70.dp)
@@ -126,7 +125,6 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Tarjeta de Formulario
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),
@@ -140,7 +138,6 @@ fun RegisterScreen(
                             .fillMaxWidth()
                             .padding(20.dp)
                     ) {
-                        // Nombre
                         OutlinedTextField(
                             value = uiState.nombre,
                             onValueChange = viewModel::onNombreChange,
@@ -163,7 +160,6 @@ fun RegisterScreen(
 
                         Spacer(modifier = Modifier.height(14.dp))
 
-                        // Correo
                         OutlinedTextField(
                             value = uiState.correo,
                             onValueChange = viewModel::onCorreoChange,
@@ -186,7 +182,6 @@ fun RegisterScreen(
 
                         Spacer(modifier = Modifier.height(14.dp))
 
-                        // Contraseña
                         OutlinedTextField(
                             value = uiState.password,
                             onValueChange = viewModel::onPasswordChange,
@@ -218,7 +213,6 @@ fun RegisterScreen(
 
                         Spacer(modifier = Modifier.height(14.dp))
 
-                        // Confirmar Contraseña
                         OutlinedTextField(
                             value = uiState.confirmPassword,
                             onValueChange = viewModel::onConfirmPasswordChange,
@@ -254,7 +248,6 @@ fun RegisterScreen(
                             )
                         )
 
-                        // Mensaje de Error
                         if (uiState.errorMessage != null) {
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(
@@ -266,7 +259,6 @@ fun RegisterScreen(
 
                         Spacer(modifier = Modifier.height(22.dp))
 
-                        // Botón Registrarse
                         Button(
                             onClick = {
                                 focusManager.clearFocus()
@@ -300,7 +292,6 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Volver a Iniciar Sesión
                 TextButton(
                     onClick = onNavigateBackToLogin,
                     enabled = !uiState.isLoading

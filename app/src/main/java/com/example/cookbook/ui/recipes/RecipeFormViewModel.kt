@@ -122,7 +122,6 @@ class RecipeFormViewModel(
         val ingredientes = state.ingredientes.trim()
         val instrucciones = state.instrucciones.trim()
 
-        // Validaciones obligatorias
         if (nombre.isBlank()) {
             _uiState.update { it.copy(errorMessage = "El nombre de la receta es obligatorio.") }
             return

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -61,7 +62,6 @@ fun RecipeListScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val categories = listOf("Desayuno", "Almuerzo", "Cena", "Postre", "Bebida", "Snack")
 
-    // Recarga automáticamente el listado al volver de crear, editar o eliminar
     LifecycleResumeEffect(Unit) {
         viewModel.loadRecipes(isRefresh = true)
         onPauseOrDispose { }
@@ -139,7 +139,6 @@ fun RecipeListScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Buscador
             OutlinedTextField(
                 value = uiState.searchQuery,
                 onValueChange = viewModel::onSearchQueryChange,
@@ -166,7 +165,6 @@ fun RecipeListScreen(
                     .padding(horizontal = 16.dp, vertical = 10.dp)
             )
 
-            // Chips de Categorías
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -196,7 +194,6 @@ fun RecipeListScreen(
                 }
             }
 
-            // Contenido Principal
             when {
                 uiState.isLoading -> {
                     Box(

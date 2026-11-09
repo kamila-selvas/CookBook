@@ -1,9 +1,5 @@
 package com.example.cookbook.domain.model
 
-/**
- * Modelo de dominio que representa una Receta en la aplicación CookBook.
- * Contiene todos los campos del negocio sin dependencias de Gson ni Retrofit.
- */
 data class Recipe(
     val id: Int = 0,
     val nombre: String,

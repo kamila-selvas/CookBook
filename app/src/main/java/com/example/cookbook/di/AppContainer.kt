@@ -15,10 +15,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-/**
- * Contrato del contenedor de dependencias manual de la aplicación.
- * Define los servicios y repositorios disponibles.
- */
 interface AppContainer {
     val sessionManager: SessionManager
     val authApiService: AuthApiService
@@ -27,13 +23,9 @@ interface AppContainer {
     val recipeRepository: RecipeRepository
 }
 
-/**
- * Implementación predeterminada del contenedor de dependencias.
- * Inicializa de manera perezosa (lazy) Retrofit, OkHttp y los servicios de red.
- */
 class DefaultAppContainer(private val context: Context) : AppContainer {
 
-    private val baseUrl = "http://54.227.36.128:8000/"
+    private val baseUrl = "http://54.146.216.114:8000/"
 
     override val sessionManager: SessionManager by lazy {
         SessionManager(context)
@@ -45,9 +37,7 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
 
     private val loggingInterceptor: HttpLoggingInterceptor by lazy {
         HttpLoggingInterceptor().apply {
-            // Registra método, URL y código HTTP (BASIC) para no exponer contraseñas del body en logs
             level = HttpLoggingInterceptor.Level.BASIC
-            // Oculta el encabezado Authorization para no imprimir el token JWT en el Logcat
             redactHeader("Authorization")
         }
     }

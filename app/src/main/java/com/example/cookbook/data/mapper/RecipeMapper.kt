@@ -4,9 +4,6 @@ import com.example.cookbook.data.dto.RecipeDto
 import com.example.cookbook.data.dto.RecipeRequestDto
 import com.example.cookbook.domain.model.Recipe
 
-/**
- * Mappers para convertir DTOs de recetas a modelos de dominio y viceversa.
- */
 fun RecipeDto.toDomain(): Recipe {
     return Recipe(
         id = id,

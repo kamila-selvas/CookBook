@@ -50,7 +50,7 @@ private val DarkColorScheme = darkColorScheme(
 @Composable
 fun CookBookTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false, // Mantenemos la identidad visual culinaria consistente
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme

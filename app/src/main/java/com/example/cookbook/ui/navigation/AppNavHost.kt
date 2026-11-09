@@ -21,9 +21,6 @@ import com.example.cookbook.ui.recipes.RecipeFormViewModel
 import com.example.cookbook.ui.recipes.RecipeListScreen
 import com.example.cookbook.ui.recipes.RecipeListViewModel
 
-/**
- * Grafo principal de navegación Compose para la aplicación CookBook.
- */
 @Composable
 fun AppNavHost(
     container: AppContainer,
@@ -41,7 +38,6 @@ fun AppNavHost(
         startDestination = startDestination,
         modifier = modifier
     ) {
-        // Inicio de Sesión
         composable(Screen.Login.route) {
             val loginViewModel: LoginViewModel = viewModel(factory = LoginViewModel.Factory)
             LoginScreen(
@@ -57,7 +53,6 @@ fun AppNavHost(
             )
         }
 
-        // Registro de Usuario
         composable(Screen.Register.route) {
             val registerViewModel: RegisterViewModel = viewModel(factory = RegisterViewModel.Factory)
             RegisterScreen(
@@ -71,7 +66,6 @@ fun AppNavHost(
             )
         }
 
-        // Listado de Recetas
         composable(Screen.RecipeList.route) {
             val recipeListViewModel: RecipeListViewModel = viewModel(factory = RecipeListViewModel.Factory)
             RecipeListScreen(
@@ -90,7 +84,6 @@ fun AppNavHost(
             )
         }
 
-        // Detalle de Receta
         composable(
             route = Screen.RecipeDetail.route,
             arguments = listOf(
@@ -120,7 +113,6 @@ fun AppNavHost(
             )
         }
 
-        // Crear Receta
         composable(Screen.RecipeCreate.route) {
             val formViewModel: RecipeFormViewModel = viewModel(
                 factory = RecipeFormViewModel.provideFactory(
@@ -140,7 +132,6 @@ fun AppNavHost(
             )
         }
 
-        // Editar Receta
         composable(
             route = Screen.RecipeEdit.route,
             arguments = listOf(

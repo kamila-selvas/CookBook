@@ -2,10 +2,6 @@ package com.example.cookbook.data.dto
 
 import com.google.gson.annotations.SerializedName
 
-/**
- * DTO que representa una receta recibida desde la API REST.
- * Coincide exactamente con el modelo devuelto por FastAPI / MariaDB.
- */
 data class RecipeDto(
     @SerializedName("id")
     val id: Int,
@@ -38,9 +34,6 @@ data class RecipeDto(
     val esFavorita: Boolean = false
 )
 
-/**
- * DTO para enviar al crear (POST) o editar (PUT) una receta.
- */
 data class RecipeRequestDto(
     @SerializedName("nombre")
     val nombre: String,

@@ -56,7 +56,6 @@ fun RecipeCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column {
-            // Contenedor de Imagen o Placeholder
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -94,7 +93,6 @@ fun RecipeCard(
                     }
                 }
 
-                // Indicador de favorita superpuesto en la esquina
                 if (recipe.esFavorita) {
                     Box(
                         modifier = Modifier
@@ -116,13 +114,11 @@ fun RecipeCard(
                 }
             }
 
-            // Información de la Receta
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                // Categoría si existe
                 if (!recipe.categoria.isNullOrBlank()) {
                     Text(
                         text = recipe.categoria.uppercase(),
@@ -135,7 +131,6 @@ fun RecipeCard(
                     Spacer(modifier = Modifier.height(4.dp))
                 }
 
-                // Título
                 Text(
                     text = recipe.nombre,
                     style = MaterialTheme.typography.titleMedium.copy(
@@ -146,7 +141,6 @@ fun RecipeCard(
                     overflow = TextOverflow.Ellipsis
                 )
 
-                // Descripción opcional
                 if (!recipe.descripcion.isNullOrBlank()) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -161,7 +155,6 @@ fun RecipeCard(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Fila con Tiempo y Porciones
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Start,

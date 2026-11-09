@@ -7,9 +7,6 @@ import com.example.cookbook.data.dto.RegisterResponseDto
 import retrofit2.http.Body
 import retrofit2.http.POST
 
-/**
- * Endpoints de autenticación de la API REST (FastAPI).
- */
 interface AuthApiService {
 
     @POST("api/auth/registro")

@@ -114,7 +114,6 @@ fun RecipeFormScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Tarjeta 1: Información Básica
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
@@ -135,7 +134,6 @@ fun RecipeFormScreen(
                             )
                         )
 
-                        // Nombre
                         OutlinedTextField(
                             value = uiState.nombre,
                             onValueChange = viewModel::onNombreChange,
@@ -150,7 +148,6 @@ fun RecipeFormScreen(
                             )
                         )
 
-                        // Descripción
                         OutlinedTextField(
                             value = uiState.descripcion,
                             onValueChange = viewModel::onDescripcionChange,
@@ -165,7 +162,6 @@ fun RecipeFormScreen(
                             )
                         )
 
-                        // Categoría
                         OutlinedTextField(
                             value = uiState.categoria,
                             onValueChange = viewModel::onCategoriaChange,
@@ -180,7 +176,6 @@ fun RecipeFormScreen(
                             )
                         )
 
-                        // URL de Imagen
                         OutlinedTextField(
                             value = uiState.imagenUrl,
                             onValueChange = viewModel::onImagenUrlChange,
@@ -196,7 +191,6 @@ fun RecipeFormScreen(
                             )
                         )
 
-                        // Tiempo y Porciones
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -231,7 +225,6 @@ fun RecipeFormScreen(
                             )
                         }
 
-                        // Switch Favorita
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -267,7 +260,6 @@ fun RecipeFormScreen(
                     }
                 }
 
-                // Tarjeta 2: Ingredientes
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
@@ -303,7 +295,6 @@ fun RecipeFormScreen(
                     }
                 }
 
-                // Tarjeta 3: Instrucciones
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
@@ -339,7 +330,6 @@ fun RecipeFormScreen(
                     }
                 }
 
-                // Mensaje de Error
                 if (uiState.errorMessage != null) {
                     Text(
                         text = uiState.errorMessage ?: "",
@@ -349,7 +339,6 @@ fun RecipeFormScreen(
                     )
                 }
 
-                // Botón Guardar
                 Button(
                     onClick = viewModel::saveRecipe,
                     enabled = !uiState.isSaving,

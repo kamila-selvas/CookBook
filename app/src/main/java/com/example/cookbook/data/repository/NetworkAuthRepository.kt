@@ -10,10 +10,6 @@ import com.example.cookbook.domain.repository.AuthRepository
 import retrofit2.HttpException
 import java.io.IOException
 
-/**
- * Implementación de AuthRepository conectada a la API REST (FastAPI).
- * Administra el guardado y eliminación del token mediante SessionManager.
- */
 class NetworkAuthRepository(
     private val authApiService: AuthApiService,
     private val sessionManager: SessionManager
@@ -48,7 +44,6 @@ class NetworkAuthRepository(
             val response = authApiService.login(request)
             val session = response.toDomain(email = correo.trim())
 
-            // Guardar token en el almacenamiento cifrado
             sessionManager.saveSession(
                 token = session.token,
                 tokenType = session.tokenType,
@@ -84,14 +79,10 @@ class NetworkAuthRepository(
         )
     }
 
-    /**
-     * Parsea respuestas de error típicas de FastAPI (detail).
-     */
     private fun parseHttpError(e: HttpException): String {
         return try {
             val errorBody = e.response()?.errorBody()?.string()
             if (!errorBody.isNullOrBlank() && errorBody.contains("detail")) {
-                // Si el error de FastAPI viene en JSON como {"detail":"..."}
                 val detailPattern = """"detail"\s*:\s*"([^"]+)"""".toRegex()
                 val match = detailPattern.find(errorBody)
                 if (match != null) {
