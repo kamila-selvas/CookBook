@@ -1,8 +1,10 @@
 package com.example.cookbook.di
 
+import com.example.cookbook.data.repository.HapticRepositoryImpl
 import com.example.cookbook.data.repository.NetworkAuthRepository
 import com.example.cookbook.data.repository.NetworkRecipeRepository
 import com.example.cookbook.domain.repository.AuthRepository
+import com.example.cookbook.domain.repository.HapticRepository
 import com.example.cookbook.domain.repository.RecipeRepository
 import dagger.Binds
 import dagger.Module
@@ -25,4 +27,10 @@ abstract class RepositoryModule {
     abstract fun bindRecipeRepository(
         networkRecipeRepository: NetworkRecipeRepository
     ): RecipeRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindHapticRepository(
+        hapticRepositoryImpl: HapticRepositoryImpl
+    ): HapticRepository
 }
