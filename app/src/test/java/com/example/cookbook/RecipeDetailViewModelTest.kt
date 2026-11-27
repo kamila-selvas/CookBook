@@ -6,6 +6,7 @@ import com.example.cookbook.domain.model.Recipe
 import com.example.cookbook.domain.usecase.DeleteRecipeUseCase
 import com.example.cookbook.domain.usecase.GetRecipeByIdUseCase
 import com.example.cookbook.domain.usecase.MarkFavoriteRecipeUseCase
+import com.example.cookbook.domain.usecase.ObserveRecipeByIdUseCase
 import com.example.cookbook.domain.usecase.PerformHapticUseCase
 import com.example.cookbook.ui.recipes.RecipeDetailViewModel
 import kotlinx.coroutines.Dispatchers
@@ -53,12 +54,14 @@ class RecipeDetailViewModelTest {
     @Test
     fun toggleFavorite_updatesState_andTriggersLightClickHaptic() = runTest {
         val getRecipeByIdUseCase = GetRecipeByIdUseCase(fakeRecipeRepo)
+        val observeRecipeByIdUseCase = ObserveRecipeByIdUseCase(fakeRecipeRepo)
         val deleteRecipeUseCase = DeleteRecipeUseCase(fakeRecipeRepo)
         val markFavoriteRecipeUseCase = MarkFavoriteRecipeUseCase(fakeRecipeRepo)
         val performHapticUseCase = PerformHapticUseCase(fakeHapticRepo)
 
         val viewModel = RecipeDetailViewModel(
             savedStateHandle = SavedStateHandle(mapOf("recipeId" to 42)),
+            observeRecipeByIdUseCase = observeRecipeByIdUseCase,
             getRecipeByIdUseCase = getRecipeByIdUseCase,
             deleteRecipeUseCase = deleteRecipeUseCase,
             markFavoriteRecipeUseCase = markFavoriteRecipeUseCase,

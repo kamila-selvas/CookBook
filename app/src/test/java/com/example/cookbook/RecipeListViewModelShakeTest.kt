@@ -3,10 +3,11 @@ package com.example.cookbook
 import com.example.cookbook.domain.model.HapticEffect
 import com.example.cookbook.domain.model.Recipe
 import com.example.cookbook.domain.usecase.GetRandomRecipeUseCase
-import com.example.cookbook.domain.usecase.GetRecipesUseCase
 import com.example.cookbook.domain.usecase.LogoutUseCase
+import com.example.cookbook.domain.usecase.ObserveRecipesUseCase
 import com.example.cookbook.domain.usecase.ObserveShakeUseCase
 import com.example.cookbook.domain.usecase.PerformHapticUseCase
+import com.example.cookbook.domain.usecase.RefreshRecipesUseCase
 import com.example.cookbook.ui.recipes.RecipeListEvent
 import com.example.cookbook.ui.recipes.RecipeListViewModel
 import kotlinx.coroutines.Dispatchers
@@ -54,14 +55,16 @@ class RecipeListViewModelShakeTest {
         fakeRecipeRepo.recipesToReturn = recipes
         fakeShakeRepo.isAvailable = shakeAvailable
 
-        val getRecipesUseCase = GetRecipesUseCase(fakeRecipeRepo)
+        val observeRecipesUseCase = ObserveRecipesUseCase(fakeRecipeRepo)
+        val refreshRecipesUseCase = RefreshRecipesUseCase(fakeRecipeRepo)
         val logoutUseCase = LogoutUseCase(fakeAuthRepo, fakeRecipeRepo)
         val getRandomRecipeUseCase = GetRandomRecipeUseCase(fakeRecipeRepo)
         val observeShakeUseCase = ObserveShakeUseCase(fakeShakeRepo)
         val performHapticUseCase = PerformHapticUseCase(fakeHapticRepo)
 
         return RecipeListViewModel(
-            getRecipesUseCase = getRecipesUseCase,
+            observeRecipesUseCase = observeRecipesUseCase,
+            refreshRecipesUseCase = refreshRecipesUseCase,
             logoutUseCase = logoutUseCase,
             getRandomRecipeUseCase = getRandomRecipeUseCase,
             observeShakeUseCase = observeShakeUseCase,

@@ -8,6 +8,7 @@ import com.example.cookbook.domain.model.Recipe
 import com.example.cookbook.domain.usecase.DeleteRecipeUseCase
 import com.example.cookbook.domain.usecase.GetRecipeByIdUseCase
 import com.example.cookbook.domain.usecase.MarkFavoriteRecipeUseCase
+import com.example.cookbook.domain.usecase.ObserveRecipeByIdUseCase
 import com.example.cookbook.domain.usecase.PerformHapticUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +22,7 @@ data class RecipeDetailUiState(
     val isLoading: Boolean = true,
     val recipe: Recipe? = null,
     val errorMessage: String? = null,
+    val isOfflineWarning: Boolean = false,
     val isDeleting: Boolean = false,
     val isDeleted: Boolean = false,
     val deleteErrorMessage: String? = null
@@ -29,6 +31,7 @@ data class RecipeDetailUiState(
 @HiltViewModel
 class RecipeDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    private val observeRecipeByIdUseCase: ObserveRecipeByIdUseCase,
     private val getRecipeByIdUseCase: GetRecipeByIdUseCase,
     private val deleteRecipeUseCase: DeleteRecipeUseCase,
     private val markFavoriteRecipeUseCase: MarkFavoriteRecipeUseCase,
@@ -41,23 +44,57 @@ class RecipeDetailViewModel @Inject constructor(
     val uiState: StateFlow<RecipeDetailUiState> = _uiState.asStateFlow()
 
     init {
+        observeCachedRecipe()
         loadRecipe()
+    }
+
+    private fun observeCachedRecipe() {
+        viewModelScope.launch {
+            observeRecipeByIdUseCase(recipeId).collect { cached ->
+                if (cached != null) {
+                    _uiState.update { current ->
+                        current.copy(
+                            recipe = cached,
+                            isLoading = false
+                        )
+                    }
+                }
+            }
+        }
     }
 
     fun loadRecipe() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            val hasLocal = _uiState.value.recipe != null
+            if (!hasLocal) {
+                _uiState.update { it.copy(isLoading = true, errorMessage = null, isOfflineWarning = false) }
+            }
+
             val result = getRecipeByIdUseCase(recipeId)
             result.fold(
                 onSuccess = { recipe ->
-                    _uiState.update { it.copy(isLoading = false, recipe = recipe, errorMessage = null) }
-                },
-                onFailure = { error ->
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = error.message ?: "No se pudo cargar la receta."
+                            recipe = recipe,
+                            errorMessage = null,
+                            isOfflineWarning = false
                         )
+                    }
+                },
+                onFailure = { error ->
+                    _uiState.update { current ->
+                        if (current.recipe != null) {
+                            current.copy(
+                                isLoading = false,
+                                isOfflineWarning = true
+                            )
+                        } else {
+                            current.copy(
+                                isLoading = false,
+                                errorMessage = error.message ?: "No se pudo cargar la receta."
+                            )
+                        }
                     }
                 }
             )
@@ -75,7 +112,7 @@ class RecipeDetailViewModel @Inject constructor(
                     performHapticUseCase(HapticEffect.LIGHT_CLICK)
                 },
                 onFailure = {
-                    // Si falla, no modificamos estado ni emitimos vibración
+                    // Si falla, el estado local no cambia
                 }
             )
         }

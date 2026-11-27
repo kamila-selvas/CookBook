@@ -4,11 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cookbook.domain.model.HapticEffect
 import com.example.cookbook.domain.model.Recipe
+import com.example.cookbook.domain.model.ResourceResult
 import com.example.cookbook.domain.usecase.GetRandomRecipeUseCase
-import com.example.cookbook.domain.usecase.GetRecipesUseCase
 import com.example.cookbook.domain.usecase.LogoutUseCase
+import com.example.cookbook.domain.usecase.ObserveRecipesUseCase
 import com.example.cookbook.domain.usecase.ObserveShakeUseCase
 import com.example.cookbook.domain.usecase.PerformHapticUseCase
+import com.example.cookbook.domain.usecase.RefreshRecipesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -33,13 +35,15 @@ data class RecipeListUiState(
     val searchQuery: String = "",
     val selectedCategory: String? = null,
     val errorMessage: String? = null,
+    val isOfflineWarning: Boolean = false,
     val isShakeAvailable: Boolean = true,
     val randomRecipeMessage: String? = null
 )
 
 @HiltViewModel
 class RecipeListViewModel @Inject constructor(
-    private val getRecipesUseCase: GetRecipesUseCase,
+    private val observeRecipesUseCase: ObserveRecipesUseCase,
+    private val refreshRecipesUseCase: RefreshRecipesUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val getRandomRecipeUseCase: GetRandomRecipeUseCase,
     private val observeShakeUseCase: ObserveShakeUseCase,
@@ -58,7 +62,23 @@ class RecipeListViewModel @Inject constructor(
     val events: Flow<RecipeListEvent> = _eventChannel.receiveAsFlow()
 
     init {
-        loadRecipes()
+        observeCachedRecipes()
+        refreshRecipes(isManual = false)
+    }
+
+    private fun observeCachedRecipes() {
+        viewModelScope.launch {
+            observeRecipesUseCase().collect { cachedList ->
+                _uiState.update { current ->
+                    val filtered = filterList(cachedList, current.searchQuery, current.selectedCategory)
+                    current.copy(
+                        recipes = cachedList,
+                        filteredRecipes = filtered,
+                        isLoading = if (cachedList.isNotEmpty()) false else current.isLoading
+                    )
+                }
+            }
+        }
     }
 
     fun observeShakes(): Flow<Unit> {
@@ -92,37 +112,97 @@ class RecipeListViewModel @Inject constructor(
         _uiState.update { it.copy(randomRecipeMessage = null) }
     }
 
-    fun loadRecipes(isRefresh: Boolean = false) {
+    fun refreshRecipes(isManual: Boolean = true) {
         viewModelScope.launch {
-            if (isRefresh) {
+            val hasData = _uiState.value.recipes.isNotEmpty()
+            if (hasData || isManual) {
                 _uiState.update { it.copy(isRefreshing = true, errorMessage = null) }
             } else {
                 _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             }
 
-            val result = getRecipesUseCase()
-            result.fold(
-                onSuccess = { recipeList ->
-                    _uiState.update { current ->
-                        current.copy(
-                            isLoading = false,
-                            isRefreshing = false,
-                            recipes = recipeList,
-                            filteredRecipes = filterList(recipeList, current.searchQuery, current.selectedCategory),
-                            errorMessage = null
-                        )
-                    }
-                },
-                onFailure = { error ->
+            when (val result = refreshRecipesUseCase()) {
+                is ResourceResult.Success -> {
                     _uiState.update {
                         it.copy(
                             isLoading = false,
                             isRefreshing = false,
-                            errorMessage = error.message ?: "Error al cargar las recetas."
+                            errorMessage = null,
+                            isOfflineWarning = false
                         )
                     }
                 }
-            )
+
+                is ResourceResult.NetworkError -> {
+                    _uiState.update { current ->
+                        if (current.recipes.isNotEmpty()) {
+                            current.copy(
+                                isLoading = false,
+                                isRefreshing = false,
+                                errorMessage = null,
+                                isOfflineWarning = true
+                            )
+                        } else {
+                            current.copy(
+                                isLoading = false,
+                                isRefreshing = false,
+                                errorMessage = result.message,
+                                isOfflineWarning = false
+                            )
+                        }
+                    }
+                }
+
+                is ResourceResult.ServerError -> {
+                    _uiState.update { current ->
+                        if (current.recipes.isNotEmpty()) {
+                            current.copy(
+                                isLoading = false,
+                                isRefreshing = false,
+                                errorMessage = null,
+                                isOfflineWarning = true
+                            )
+                        } else {
+                            current.copy(
+                                isLoading = false,
+                                isRefreshing = false,
+                                errorMessage = result.message,
+                                isOfflineWarning = false
+                            )
+                        }
+                    }
+                }
+
+                is ResourceResult.Unauthorized -> {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            isRefreshing = false,
+                            errorMessage = "Sesión expirada o no autorizada. Por favor vuelve a iniciar sesión."
+                        )
+                    }
+                }
+
+                is ResourceResult.UnknownError -> {
+                    _uiState.update { current ->
+                        if (current.recipes.isNotEmpty()) {
+                            current.copy(
+                                isLoading = false,
+                                isRefreshing = false,
+                                errorMessage = null,
+                                isOfflineWarning = true
+                            )
+                        } else {
+                            current.copy(
+                                isLoading = false,
+                                isRefreshing = false,
+                                errorMessage = result.message,
+                                isOfflineWarning = false
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 
