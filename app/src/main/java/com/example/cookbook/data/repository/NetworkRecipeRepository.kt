@@ -7,8 +7,9 @@ import com.example.cookbook.domain.model.Recipe
 import com.example.cookbook.domain.repository.RecipeRepository
 import retrofit2.HttpException
 import java.io.IOException
+import javax.inject.Inject
 
-class NetworkRecipeRepository(
+class NetworkRecipeRepository @Inject constructor(
     private val recipeApiService: RecipeApiService
 ) : RecipeRepository {
 

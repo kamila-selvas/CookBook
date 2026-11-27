@@ -3,8 +3,11 @@ package com.example.cookbook.data.api
 import com.example.cookbook.data.local.SessionManager
 import okhttp3.Interceptor
 import okhttp3.Response
+import javax.inject.Inject
 
-class AuthInterceptor(private val sessionManager: SessionManager) : Interceptor {
+class AuthInterceptor @Inject constructor(
+    private val sessionManager: SessionManager
+) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()

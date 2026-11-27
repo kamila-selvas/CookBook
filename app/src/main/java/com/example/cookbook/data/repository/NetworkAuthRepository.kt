@@ -9,8 +9,9 @@ import com.example.cookbook.domain.model.UserSession
 import com.example.cookbook.domain.repository.AuthRepository
 import retrofit2.HttpException
 import java.io.IOException
+import javax.inject.Inject
 
-class NetworkAuthRepository(
+class NetworkAuthRepository @Inject constructor(
     private val authApiService: AuthApiService,
     private val sessionManager: SessionManager
 ) : AuthRepository {
