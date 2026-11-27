@@ -14,7 +14,7 @@ securityCrypto = "1.1.0-alpha06"
 navigationCompose = "2.8.8"
 coil = "2.7.0"
 hilt = "2.60.1"
-ksp = "2.2.10-2.0.2"
+ksp = "2.3.13"
 androidxHilt = "1.2.0"
 
 [libraries]
