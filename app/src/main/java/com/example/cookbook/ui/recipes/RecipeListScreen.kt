@@ -1,6 +1,7 @@
 package com.example.cookbook.ui.recipes
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,8 +25,12 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -37,19 +42,26 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,6 +73,28 @@ fun RecipeListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val categories = listOf("Desayuno", "Almuerzo", "Cena", "Postre", "Bebida", "Snack")
+    val snackbarHostState = remember { SnackbarHostState() }
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    // Colecciona agitaciones del acelerómetro SOLO mientras la pantalla está en estado RESUMED
+    // Cuando el usuario navega a otra pantalla o la app pasa a background, el listener del sensor se desregistra
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewModel.observeShakes().collect {
+                viewModel.onRandomRecipeRequested()
+            }
+        }
+    }
+
+    // Colección de eventos de un solo uso (navegación y mensajes de Snackbar)
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is RecipeListEvent.NavigateToRecipe -> onRecipeClick(event.recipeId)
+                is RecipeListEvent.ShowMessage -> snackbarHostState.showSnackbar(event.message)
+            }
+        }
+    }
 
     LifecycleResumeEffect(Unit) {
         viewModel.loadRecipes(isRefresh = true)
@@ -132,6 +166,7 @@ fun RecipeListScreen(
                 Icon(Icons.Default.Add, contentDescription = "Nueva Receta")
             }
         },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Column(
@@ -162,13 +197,13 @@ fun RecipeListScreen(
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 6.dp)
             ) {
                 item {
                     FilterChip(
@@ -191,6 +226,76 @@ fun RecipeListScreen(
                             selectedLabelColor = MaterialTheme.colorScheme.onPrimary
                         )
                     )
+                }
+            }
+
+            // Banner / Tarjeta interactiva: "¿Qué cocino hoy?"
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 6.dp)
+                    .clickable(onClick = viewModel::onRandomRecipeRequested),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.surface,
+                                shape = RoundedCornerShape(12.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = if (uiState.isShakeAvailable) Icons.Default.Vibration else Icons.Default.Shuffle,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "¿Qué cocino hoy?",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        )
+                        Text(
+                            text = if (uiState.isShakeAvailable) {
+                                "¡Agita tu teléfono o toca aquí para elegir una receta al azar!"
+                            } else {
+                                "Toca aquí para descubrir una receta al azar."
+                            },
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.85f)
+                            )
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Button(
+                        onClick = viewModel::onRandomRecipeRequested,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary
+                        )
+                    ) {
+                        Text("Elegir")
+                    }
                 }
             }
 

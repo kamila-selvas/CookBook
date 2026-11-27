@@ -3,9 +3,11 @@ package com.example.cookbook.di
 import com.example.cookbook.data.repository.HapticRepositoryImpl
 import com.example.cookbook.data.repository.NetworkAuthRepository
 import com.example.cookbook.data.repository.NetworkRecipeRepository
+import com.example.cookbook.data.repository.ShakeRepositoryImpl
 import com.example.cookbook.domain.repository.AuthRepository
 import com.example.cookbook.domain.repository.HapticRepository
 import com.example.cookbook.domain.repository.RecipeRepository
+import com.example.cookbook.domain.repository.ShakeRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -33,4 +35,10 @@ abstract class RepositoryModule {
     abstract fun bindHapticRepository(
         hapticRepositoryImpl: HapticRepositoryImpl
     ): HapticRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindShakeRepository(
+        shakeRepositoryImpl: ShakeRepositoryImpl
+    ): ShakeRepository
 }
