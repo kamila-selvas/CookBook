@@ -1,15 +1,18 @@
 package com.example.cookbook.ui.recipes
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.cookbook.domain.model.Recipe
-import com.example.cookbook.domain.repository.RecipeRepository
+import com.example.cookbook.domain.usecase.DeleteRecipeUseCase
+import com.example.cookbook.domain.usecase.GetRecipeByIdUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class RecipeDetailUiState(
     val isLoading: Boolean = true,
@@ -20,10 +23,14 @@ data class RecipeDetailUiState(
     val deleteErrorMessage: String? = null
 )
 
-class RecipeDetailViewModel(
-    private val recipeId: Int,
-    private val recipeRepository: RecipeRepository
+@HiltViewModel
+class RecipeDetailViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val getRecipeByIdUseCase: GetRecipeByIdUseCase,
+    private val deleteRecipeUseCase: DeleteRecipeUseCase
 ) : ViewModel() {
+
+    private val recipeId: Int = savedStateHandle.get<Int>("recipeId") ?: 0
 
     private val _uiState = MutableStateFlow(RecipeDetailUiState())
     val uiState: StateFlow<RecipeDetailUiState> = _uiState.asStateFlow()
@@ -35,7 +42,7 @@ class RecipeDetailViewModel(
     fun loadRecipe() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            val result = recipeRepository.getRecipeById(recipeId)
+            val result = getRecipeByIdUseCase(recipeId)
             result.fold(
                 onSuccess = { recipe ->
                     _uiState.update { it.copy(isLoading = false, recipe = recipe, errorMessage = null) }
@@ -55,7 +62,7 @@ class RecipeDetailViewModel(
     fun deleteRecipe() {
         viewModelScope.launch {
             _uiState.update { it.copy(isDeleting = true, deleteErrorMessage = null) }
-            val result = recipeRepository.deleteRecipe(recipeId)
+            val result = deleteRecipeUseCase(recipeId)
             result.fold(
                 onSuccess = {
                     _uiState.update { it.copy(isDeleting = false, isDeleted = true) }
@@ -69,18 +76,6 @@ class RecipeDetailViewModel(
                     }
                 }
             )
-        }
-    }
-
-    companion object {
-        fun provideFactory(
-            recipeId: Int,
-            recipeRepository: RecipeRepository
-        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return RecipeDetailViewModel(recipeId, recipeRepository) as T
-            }
         }
     }
 }

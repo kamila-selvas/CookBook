@@ -2,7 +2,7 @@ package com.example.cookbook.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -39,7 +39,7 @@ fun AppNavHost(
         modifier = modifier
     ) {
         composable(Screen.Login.route) {
-            val loginViewModel: LoginViewModel = viewModel(factory = LoginViewModel.Factory)
+            val loginViewModel: LoginViewModel = hiltViewModel()
             LoginScreen(
                 viewModel = loginViewModel,
                 onNavigateToRegister = {
@@ -54,7 +54,7 @@ fun AppNavHost(
         }
 
         composable(Screen.Register.route) {
-            val registerViewModel: RegisterViewModel = viewModel(factory = RegisterViewModel.Factory)
+            val registerViewModel: RegisterViewModel = hiltViewModel()
             RegisterScreen(
                 viewModel = registerViewModel,
                 onNavigateBackToLogin = {
@@ -67,7 +67,7 @@ fun AppNavHost(
         }
 
         composable(Screen.RecipeList.route) {
-            val recipeListViewModel: RecipeListViewModel = viewModel(factory = RecipeListViewModel.Factory)
+            val recipeListViewModel: RecipeListViewModel = hiltViewModel()
             RecipeListScreen(
                 viewModel = recipeListViewModel,
                 onRecipeClick = { recipeId ->
@@ -89,16 +89,8 @@ fun AppNavHost(
             arguments = listOf(
                 navArgument("recipeId") { type = NavType.IntType }
             )
-        ) { backStackEntry ->
-            val recipeId = backStackEntry.arguments?.getInt("recipeId") ?: 0
-            val detailViewModel: RecipeDetailViewModel = viewModel(
-                key = "detail_$recipeId",
-                factory = RecipeDetailViewModel.provideFactory(
-                    recipeId = recipeId,
-                    recipeRepository = container.recipeRepository
-                )
-            )
-
+        ) {
+            val detailViewModel: RecipeDetailViewModel = hiltViewModel()
             RecipeDetailScreen(
                 viewModel = detailViewModel,
                 onNavigateBack = {
@@ -114,12 +106,7 @@ fun AppNavHost(
         }
 
         composable(Screen.RecipeCreate.route) {
-            val formViewModel: RecipeFormViewModel = viewModel(
-                factory = RecipeFormViewModel.provideFactory(
-                    recipeId = null,
-                    recipeRepository = container.recipeRepository
-                )
-            )
+            val formViewModel: RecipeFormViewModel = hiltViewModel()
             RecipeFormScreen(
                 viewModel = formViewModel,
                 isEditMode = false,
@@ -137,15 +124,8 @@ fun AppNavHost(
             arguments = listOf(
                 navArgument("recipeId") { type = NavType.IntType }
             )
-        ) { backStackEntry ->
-            val recipeId = backStackEntry.arguments?.getInt("recipeId") ?: 0
-            val formViewModel: RecipeFormViewModel = viewModel(
-                key = "edit_$recipeId",
-                factory = RecipeFormViewModel.provideFactory(
-                    recipeId = recipeId,
-                    recipeRepository = container.recipeRepository
-                )
-            )
+        ) {
+            val formViewModel: RecipeFormViewModel = hiltViewModel()
             RecipeFormScreen(
                 viewModel = formViewModel,
                 isEditMode = true,

@@ -1,15 +1,19 @@
 package com.example.cookbook.ui.recipes
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.cookbook.domain.model.Recipe
-import com.example.cookbook.domain.repository.RecipeRepository
+import com.example.cookbook.domain.usecase.CreateRecipeUseCase
+import com.example.cookbook.domain.usecase.GetRecipeByIdUseCase
+import com.example.cookbook.domain.usecase.UpdateRecipeUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class RecipeFormUiState(
     val id: Int? = null,
@@ -28,10 +32,15 @@ data class RecipeFormUiState(
     val errorMessage: String? = null
 )
 
-class RecipeFormViewModel(
-    private val recipeId: Int?,
-    private val recipeRepository: RecipeRepository
+@HiltViewModel
+class RecipeFormViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val getRecipeByIdUseCase: GetRecipeByIdUseCase,
+    private val createRecipeUseCase: CreateRecipeUseCase,
+    private val updateRecipeUseCase: UpdateRecipeUseCase
 ) : ViewModel() {
+
+    private val recipeId: Int? = savedStateHandle.get<Int>("recipeId")?.takeIf { it > 0 }
 
     private val _uiState = MutableStateFlow(RecipeFormUiState(id = recipeId))
     val uiState: StateFlow<RecipeFormUiState> = _uiState.asStateFlow()
@@ -45,7 +54,7 @@ class RecipeFormViewModel(
     private fun loadExistingRecipe(id: Int) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoadingRecipe = true, errorMessage = null) }
-            val result = recipeRepository.getRecipeById(id)
+            val result = getRecipeByIdUseCase(id)
             result.fold(
                 onSuccess = { recipe ->
                     _uiState.update { current ->
@@ -154,9 +163,9 @@ class RecipeFormViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true, errorMessage = null) }
             val result = if (recipeId != null && recipeId > 0) {
-                recipeRepository.updateRecipe(recipeId, recipeToSave)
+                updateRecipeUseCase(recipeId, recipeToSave)
             } else {
-                recipeRepository.createRecipe(recipeToSave)
+                createRecipeUseCase(recipeToSave)
             }
 
             result.fold(
@@ -172,18 +181,6 @@ class RecipeFormViewModel(
                     }
                 }
             )
-        }
-    }
-
-    companion object {
-        fun provideFactory(
-            recipeId: Int?,
-            recipeRepository: RecipeRepository
-        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return RecipeFormViewModel(recipeId, recipeRepository) as T
-            }
         }
     }
 }

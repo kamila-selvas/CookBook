@@ -7,12 +7,14 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.cookbook.CookBookApplication
-import com.example.cookbook.domain.repository.AuthRepository
+import com.example.cookbook.domain.usecase.RegisterUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class RegisterUiState(
     val nombre: String = "",
@@ -25,8 +27,9 @@ data class RegisterUiState(
     val successMessage: String? = null
 )
 
-class RegisterViewModel(
-    private val authRepository: AuthRepository
+@HiltViewModel
+class RegisterViewModel @Inject constructor(
+    private val registerUseCase: RegisterUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RegisterUiState())
@@ -82,7 +85,7 @@ class RegisterViewModel(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            val result = authRepository.register(nombre, correo, password)
+            val result = registerUseCase(nombre, correo, password)
             result.fold(
                 onSuccess = { message ->
                     _uiState.update {
@@ -110,7 +113,7 @@ class RegisterViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as CookBookApplication)
-                RegisterViewModel(application.container.authRepository)
+                RegisterViewModel(RegisterUseCase(application.container.authRepository))
             }
         }
     }

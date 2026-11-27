@@ -7,13 +7,15 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.cookbook.CookBookApplication
 import com.example.cookbook.domain.model.Recipe
-import com.example.cookbook.domain.repository.AuthRepository
-import com.example.cookbook.domain.repository.RecipeRepository
+import com.example.cookbook.domain.usecase.GetRecipesUseCase
+import com.example.cookbook.domain.usecase.LogoutUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class RecipeListUiState(
     val isLoading: Boolean = false,
@@ -25,9 +27,10 @@ data class RecipeListUiState(
     val errorMessage: String? = null
 )
 
-class RecipeListViewModel(
-    private val recipeRepository: RecipeRepository,
-    private val authRepository: AuthRepository
+@HiltViewModel
+class RecipeListViewModel @Inject constructor(
+    private val getRecipesUseCase: GetRecipesUseCase,
+    private val logoutUseCase: LogoutUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RecipeListUiState(isLoading = true))
@@ -45,7 +48,7 @@ class RecipeListViewModel(
                 _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             }
 
-            val result = recipeRepository.getRecipes()
+            val result = getRecipesUseCase()
             result.fold(
                 onSuccess = { recipeList ->
                     _uiState.update { current ->
@@ -91,7 +94,7 @@ class RecipeListViewModel(
     }
 
     fun logout() {
-        authRepository.logout()
+        logoutUseCase()
     }
 
     private fun filterList(
@@ -117,8 +120,8 @@ class RecipeListViewModel(
             initializer {
                 val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as CookBookApplication)
                 RecipeListViewModel(
-                    recipeRepository = application.container.recipeRepository,
-                    authRepository = application.container.authRepository
+                    getRecipesUseCase = GetRecipesUseCase(application.container.recipeRepository),
+                    logoutUseCase = LogoutUseCase(application.container.authRepository)
                 )
             }
         }
