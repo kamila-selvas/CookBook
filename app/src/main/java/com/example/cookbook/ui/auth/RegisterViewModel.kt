@@ -2,11 +2,7 @@ package com.example.cookbook.ui.auth
 
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.cookbook.CookBookApplication
 import com.example.cookbook.domain.usecase.RegisterUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -106,15 +102,6 @@ class RegisterViewModel @Inject constructor(
                     }
                 }
             )
-        }
-    }
-
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as CookBookApplication)
-                RegisterViewModel(RegisterUseCase(application.container.authRepository))
-            }
         }
     }
 }

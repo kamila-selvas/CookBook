@@ -9,7 +9,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.cookbook.di.AppContainer
 import com.example.cookbook.ui.auth.LoginScreen
 import com.example.cookbook.ui.auth.LoginViewModel
 import com.example.cookbook.ui.auth.RegisterScreen
@@ -23,16 +22,10 @@ import com.example.cookbook.ui.recipes.RecipeListViewModel
 
 @Composable
 fun AppNavHost(
-    container: AppContainer,
     modifier: Modifier = Modifier,
+    startDestination: String = Screen.Login.route,
     navController: NavHostController = rememberNavController()
 ) {
-    val startDestination = if (container.authRepository.isLoggedIn()) {
-        Screen.RecipeList.route
-    } else {
-        Screen.Login.route
-    }
-
     NavHost(
         navController = navController,
         startDestination = startDestination,
