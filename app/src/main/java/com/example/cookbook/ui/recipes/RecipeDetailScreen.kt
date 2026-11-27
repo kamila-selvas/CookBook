@@ -21,8 +21,10 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -62,7 +64,8 @@ fun RecipeDetailScreen(
     viewModel: RecipeDetailViewModel,
     onNavigateBack: () -> Unit,
     onEditRecipe: (Int) -> Unit,
-    onRecipeDeleted: () -> Unit
+    onRecipeDeleted: () -> Unit,
+    onNavigateToCookingMode: (Int) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -140,6 +143,15 @@ fun RecipeDetailScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Volver",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = viewModel::toggleFavorite) {
+                        Icon(
+                            imageVector = if (uiState.recipe?.esFavorita == true) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = if (uiState.recipe?.esFavorita == true) "Quitar de favoritos" else "Marcar como favorita",
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -448,6 +460,31 @@ fun RecipeDetailScreen(
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
+
+                        Button(
+                            onClick = { onNavigateToCookingMode(recipe.id) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Timer,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Modo Cocina",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),

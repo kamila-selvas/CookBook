@@ -3,9 +3,12 @@ package com.example.cookbook.ui.recipes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.cookbook.domain.model.HapticEffect
 import com.example.cookbook.domain.model.Recipe
 import com.example.cookbook.domain.usecase.DeleteRecipeUseCase
 import com.example.cookbook.domain.usecase.GetRecipeByIdUseCase
+import com.example.cookbook.domain.usecase.MarkFavoriteRecipeUseCase
+import com.example.cookbook.domain.usecase.PerformHapticUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,7 +30,9 @@ data class RecipeDetailUiState(
 class RecipeDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getRecipeByIdUseCase: GetRecipeByIdUseCase,
-    private val deleteRecipeUseCase: DeleteRecipeUseCase
+    private val deleteRecipeUseCase: DeleteRecipeUseCase,
+    private val markFavoriteRecipeUseCase: MarkFavoriteRecipeUseCase,
+    private val performHapticUseCase: PerformHapticUseCase
 ) : ViewModel() {
 
     private val recipeId: Int = savedStateHandle.get<Int>("recipeId") ?: 0
@@ -54,6 +59,23 @@ class RecipeDetailViewModel @Inject constructor(
                             errorMessage = error.message ?: "No se pudo cargar la receta."
                         )
                     }
+                }
+            )
+        }
+    }
+
+    fun toggleFavorite() {
+        val current = _uiState.value.recipe ?: return
+        viewModelScope.launch {
+            val newStatus = !current.esFavorita
+            val result = markFavoriteRecipeUseCase(current, newStatus)
+            result.fold(
+                onSuccess = { updatedRecipe ->
+                    _uiState.update { it.copy(recipe = updatedRecipe) }
+                    performHapticUseCase(HapticEffect.LIGHT_CLICK)
+                },
+                onFailure = {
+                    // Si falla, no modificamos estado ni emitimos vibración
                 }
             )
         }

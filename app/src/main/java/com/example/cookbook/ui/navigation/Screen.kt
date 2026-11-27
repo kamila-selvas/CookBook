@@ -11,4 +11,7 @@ sealed class Screen(val route: String) {
     data object RecipeEdit : Screen("recipe_edit/{recipeId}") {
         fun createRoute(recipeId: Int): String = "recipe_edit/$recipeId"
     }
+    data object CookingMode : Screen("cooking_mode/{recipeId}") {
+        fun createRoute(recipeId: Int): String = "cooking_mode/$recipeId"
+    }
 }

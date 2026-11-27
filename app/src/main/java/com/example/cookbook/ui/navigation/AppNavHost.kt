@@ -13,6 +13,8 @@ import com.example.cookbook.ui.auth.LoginScreen
 import com.example.cookbook.ui.auth.LoginViewModel
 import com.example.cookbook.ui.auth.RegisterScreen
 import com.example.cookbook.ui.auth.RegisterViewModel
+import com.example.cookbook.ui.recipes.CookingModeScreen
+import com.example.cookbook.ui.recipes.CookingModeViewModel
 import com.example.cookbook.ui.recipes.RecipeDetailScreen
 import com.example.cookbook.ui.recipes.RecipeDetailViewModel
 import com.example.cookbook.ui.recipes.RecipeFormScreen
@@ -93,6 +95,24 @@ fun AppNavHost(
                     navController.navigate(Screen.RecipeEdit.createRoute(id))
                 },
                 onRecipeDeleted = {
+                    navController.popBackStack()
+                },
+                onNavigateToCookingMode = { id ->
+                    navController.navigate(Screen.CookingMode.createRoute(id))
+                }
+            )
+        }
+
+        composable(
+            route = Screen.CookingMode.route,
+            arguments = listOf(
+                navArgument("recipeId") { type = NavType.IntType }
+            )
+        ) {
+            val cookingModeViewModel: CookingModeViewModel = hiltViewModel()
+            CookingModeScreen(
+                viewModel = cookingModeViewModel,
+                onNavigateBack = {
                     navController.popBackStack()
                 }
             )
