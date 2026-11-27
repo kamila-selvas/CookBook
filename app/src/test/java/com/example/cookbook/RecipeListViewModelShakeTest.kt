@@ -55,7 +55,7 @@ class RecipeListViewModelShakeTest {
         fakeShakeRepo.isAvailable = shakeAvailable
 
         val getRecipesUseCase = GetRecipesUseCase(fakeRecipeRepo)
-        val logoutUseCase = LogoutUseCase(fakeAuthRepo)
+        val logoutUseCase = LogoutUseCase(fakeAuthRepo, fakeRecipeRepo)
         val getRandomRecipeUseCase = GetRandomRecipeUseCase(fakeRecipeRepo)
         val observeShakeUseCase = ObserveShakeUseCase(fakeShakeRepo)
         val performHapticUseCase = PerformHapticUseCase(fakeHapticRepo)

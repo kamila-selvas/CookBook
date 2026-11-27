@@ -146,7 +146,9 @@ class RecipeListViewModel @Inject constructor(
     }
 
     fun logout() {
-        logoutUseCase()
+        viewModelScope.launch {
+            logoutUseCase()
+        }
     }
 
     private fun filterList(
