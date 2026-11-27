@@ -1,8 +1,11 @@
 package com.example.cookbook.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -13,6 +16,8 @@ import com.example.cookbook.ui.auth.LoginScreen
 import com.example.cookbook.ui.auth.LoginViewModel
 import com.example.cookbook.ui.auth.RegisterScreen
 import com.example.cookbook.ui.auth.RegisterViewModel
+import com.example.cookbook.ui.recipes.CameraScreen
+import com.example.cookbook.ui.recipes.CameraViewModel
 import com.example.cookbook.ui.recipes.CookingModeScreen
 import com.example.cookbook.ui.recipes.CookingModeViewModel
 import com.example.cookbook.ui.recipes.RecipeDetailScreen
@@ -118,8 +123,19 @@ fun AppNavHost(
             )
         }
 
-        composable(Screen.RecipeCreate.route) {
+        composable(Screen.RecipeCreate.route) { backStackEntry ->
             val formViewModel: RecipeFormViewModel = hiltViewModel()
+            val capturedPath by backStackEntry.savedStateHandle
+                .getStateFlow<String?>("captured_photo_path", null)
+                .collectAsStateWithLifecycle()
+
+            LaunchedEffect(capturedPath) {
+                capturedPath?.let { path ->
+                    formViewModel.onImagenUrlChange(path)
+                    backStackEntry.savedStateHandle.remove<String>("captured_photo_path")
+                }
+            }
+
             RecipeFormScreen(
                 viewModel = formViewModel,
                 isEditMode = false,
@@ -128,6 +144,9 @@ fun AppNavHost(
                 },
                 onSaveSuccess = {
                     navController.popBackStack()
+                },
+                onNavigateToCamera = {
+                    navController.navigate(Screen.Camera.route)
                 }
             )
         }
@@ -137,8 +156,19 @@ fun AppNavHost(
             arguments = listOf(
                 navArgument("recipeId") { type = NavType.IntType }
             )
-        ) {
+        ) { backStackEntry ->
             val formViewModel: RecipeFormViewModel = hiltViewModel()
+            val capturedPath by backStackEntry.savedStateHandle
+                .getStateFlow<String?>("captured_photo_path", null)
+                .collectAsStateWithLifecycle()
+
+            LaunchedEffect(capturedPath) {
+                capturedPath?.let { path ->
+                    formViewModel.onImagenUrlChange(path)
+                    backStackEntry.savedStateHandle.remove<String>("captured_photo_path")
+                }
+            }
+
             RecipeFormScreen(
                 viewModel = formViewModel,
                 isEditMode = true,
@@ -146,6 +176,25 @@ fun AppNavHost(
                     navController.popBackStack()
                 },
                 onSaveSuccess = {
+                    navController.popBackStack()
+                },
+                onNavigateToCamera = {
+                    navController.navigate(Screen.Camera.route)
+                }
+            )
+        }
+
+        composable(Screen.Camera.route) {
+            val cameraViewModel: CameraViewModel = hiltViewModel()
+            CameraScreen(
+                viewModel = cameraViewModel,
+                onPhotoCaptured = { photoPath ->
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("captured_photo_path", photoPath)
+                    navController.popBackStack()
+                },
+                onNavigateBack = {
                     navController.popBackStack()
                 }
             )

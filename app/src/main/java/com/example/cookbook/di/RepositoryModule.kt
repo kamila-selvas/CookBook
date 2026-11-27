@@ -3,9 +3,11 @@ package com.example.cookbook.di
 import com.example.cookbook.data.repository.HapticRepositoryImpl
 import com.example.cookbook.data.repository.NetworkAuthRepository
 import com.example.cookbook.data.repository.NetworkRecipeRepository
+import com.example.cookbook.data.repository.PhotoRepositoryImpl
 import com.example.cookbook.data.repository.ShakeRepositoryImpl
 import com.example.cookbook.domain.repository.AuthRepository
 import com.example.cookbook.domain.repository.HapticRepository
+import com.example.cookbook.domain.repository.PhotoRepository
 import com.example.cookbook.domain.repository.RecipeRepository
 import com.example.cookbook.domain.repository.ShakeRepository
 import dagger.Binds
@@ -41,4 +43,10 @@ abstract class RepositoryModule {
     abstract fun bindShakeRepository(
         shakeRepositoryImpl: ShakeRepositoryImpl
     ): ShakeRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPhotoRepository(
+        photoRepositoryImpl: PhotoRepositoryImpl
+    ): PhotoRepository
 }
